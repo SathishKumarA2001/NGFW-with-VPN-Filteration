@@ -24,17 +24,14 @@ class VPN:
             iplist = open("subnet.txt","r")
             for IP in iplist:
                 IP = IP.strip()
-                x = re.search("((\A[5].[0-9]))", self.ip)
-                if x:
+                R1 = re.search("\A2.", self.ip)
+                R2 = re.search("\A3.", self.ip)
+                R3 = re.search("\A5.", self.ip)
+                if R1 or R2 or R3:
                     f = open("VPN_log.log", "a")
                     f.write("\n"+self.ip+"\t"+str(self.span))
                     f.close()
-                    flag =1
                     break
-
-
-
-
 
 class Proxy(VPN):
     def __init__(self, ip, port):
