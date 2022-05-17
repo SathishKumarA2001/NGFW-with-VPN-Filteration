@@ -24,7 +24,7 @@ class VPN:
             iplist = open("subnet.txt","r")
             for IP in iplist:
                 IP = IP.strip()
-                x = re.search("((\A[0-5].[0-9]))", self.ip)
+                x = re.search("((\A[5].[0-9]))", self.ip)
                 if x:
                     f = open("VPN_log.log", "a")
                     f.write("\n"+self.ip+"\t"+str(self.span))

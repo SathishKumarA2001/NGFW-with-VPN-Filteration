@@ -1,3 +1,4 @@
 # ignore all log files
 *.log
+*.txt
 test.py
