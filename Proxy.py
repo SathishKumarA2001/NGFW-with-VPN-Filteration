@@ -9,13 +9,14 @@ class VPN:
         self.filter()  # call the method when the object initialise
 
     def filter(self):
-        x = re.search("((127.0.0.1))", self.ip)
-        if x:
-            f = open("VPN_log.log", "a")
-            f.write("\n"+self.ip+"\t"+str(self.span))
-            f.close()
-        else:
-            return 0
+        iplist = open("iplist.txt", "r")
+        for IP in iplist:
+            x = re.search("(({}))".format(IP.strip()), self.ip)
+            if x:
+                f = open("VPN_log.log", "a")
+                f.write("\n"+self.ip+"\t"+str(self.span))
+                f.close()
+                break
 
 class Proxy(VPN):
     def __init__(self, ip, port):
