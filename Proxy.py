@@ -2,7 +2,6 @@ import socket as s  # Socket
 import re  # Regex
 import datetime,time
 from threading import Thread
-from more_itertools import ichunked
 import requests,mimetypes
 
 resp_on = """HTTP/1.1 200 OK
