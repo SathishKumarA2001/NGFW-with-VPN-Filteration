@@ -2,6 +2,7 @@ import socket as s  # Socket
 import re  # Regex
 import datetime,time
 from threading import Thread
+from more_itertools import ichunked
 import requests,mimetypes
 
 resp_on = """HTTP/1.1 200 OK
@@ -68,7 +69,7 @@ class Balancer(Thread):
 
 ip = "127.0.0.1"
 port = 9999
-connINTime = []
+connINTime = []   #connections seconds log in LIST for DOS Mitigation
 
 socket = s.socket(s.AF_INET, s.SOCK_STREAM)
 socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
@@ -83,12 +84,35 @@ while True:
     VPN(ip[0], span)  #Object constructed
     Balancer(conn,ip).start()            
 
-    def ConnInlogTime(ip):
+    def ConnInlogTime(ip):    #this method for appending time+ip in a list and passing to DOSMitigation method
         sec = str(time.time())
         sec = sec.split(".")
         connInSec = sec[0]+" "+ip
         connINTime.append(connInSec)
-        print(connINTime)
+        DosMitigation(connINTime)
+
+    def DosMitigation(connINTime):    #this method gets time+ip list and do process
+        sec = connINTime
+        val = 0
+        if(len(sec) == 6):            #It's check if a request is comes more than enough within a second
+            for i in sec:
+                span = i.split(" ")
+                val = int(span[0]) - val 
+                #val = abs(val)
+            
+            if(val < 1):            #If a rquest is malicious it will append the IPs in a IPCHECK list
+                IPCHECK = []
+                for i in sec:
+                    ip = i.split(" ")
+                    ip = ip[1]
+                    IPCHECK.append(ip)
+                    
+                if len(set(IPCHECK)) == 1:  #If the request is from same IPs it will write the IP in a BlockIP file
+                    with open("BlockIP.txt","a") as file:
+                        f = file.write(IPCHECK[0]+"\n")     
+                connINTime.clear()                          #Clear the list for every given list size is exceeds
+            else:
+                connINTime.clear()
 
     ConnInlogTime(ip[0])   
 
