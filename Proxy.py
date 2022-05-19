@@ -1,6 +1,6 @@
 import socket as s  # Socket
 import re  # Regex
-import datetime
+import datetime,time
 from threading import Thread
 import requests,mimetypes
 
@@ -20,9 +20,9 @@ class VPN:
     def __init__(self, ip, span):
         self.ip = ip
         self.span = span
-        self.filter()  # call the method when the object initialise
+        self.log()  # call the method when the object initialise
 
-    def filter(self):
+    def log(self):
         flag = 0
         if (flag == 0):
             iplist = open("ip.txt", "r")
@@ -55,18 +55,20 @@ class Balancer(Thread):
 
     def run(self):
         data = conn.recv(4098)
-        #req = data.decode()
+        req = data.decode()
+        #print(req)
         resp = requests.get("http://127.0.0.1/")
         with open('buffer.html','w') as buffer:
             buf = buffer.write(resp.text) 
         with open('buffer.html','r') as buffer:
             buf = buffer.read()
         conn.sendall(resp_on.format(type=mimetypes.guess_type(buf)[0],length=len(buf),body=buf).encode())
-        
+        conn.close()
 
 
 ip = "127.0.0.1"
 port = 9999
+connINTime = []
 
 socket = s.socket(s.AF_INET, s.SOCK_STREAM)
 socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
@@ -79,12 +81,14 @@ while True:
     #conn.send("Proxy server".encode())
     span = datetime.datetime.now()  # IP login time
     VPN(ip[0], span)  #Object constructed
-    Balancer(conn,ip).start()
-            
-            
-"""            while True:
-                data = conn.recv(1024)
-                print(data.decode())
-            #conn.close()
-            #socket.close()
-            break  """
+    Balancer(conn,ip).start()            
+
+    def ConnInlogTime(ip):
+        sec = str(time.time())
+        sec = sec.split(".")
+        connInSec = sec[0]+" "+ip
+        connINTime.append(connInSec)
+        print(connINTime)
+
+    ConnInlogTime(ip[0])   
+
