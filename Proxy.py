@@ -66,6 +66,40 @@ class Balancer(Thread):
         conn.close()
 
 
+
+def ConnInlogTime(ip):    #this method for appending time+ip in a list and passing to DOSMitigation method
+    sec = str(time.time())
+    sec = sec.split(".")
+    connInSec = sec[0]+" "+ip
+    connINTime.append(connInSec)
+    DosMitigation(connINTime)
+
+def DosMitigation(connINTime):    #this method gets time+ip list and do process
+    sec = connINTime
+    val = 0
+    if(len(sec) == 6):            #It's check if a request is comes more than enough within a second
+        for i in sec:
+            span = i.split(" ")
+            val = int(span[0]) - val 
+            #val = abs(val)
+        
+        if(val < 1):            #If a rquest is malicious it will append the IPs in a IPCHECK list
+            IPCHECK = []
+            for i in sec:
+                ip = i.split(" ")
+                ip = ip[1]
+                IPCHECK.append(ip)
+                
+            if len(set(IPCHECK)) == 1:  #If the request is from same IPs it will write the IP in a BlockIP file
+                with open("BlockIP.txt","a") as file:
+                    f = file.write(IPCHECK[0]+"\n")     
+            connINTime.clear()                          #Clear the list for every given list size is exceeds
+        else:
+            connINTime.clear()
+
+
+
+
 ip = "127.0.0.1"
 port = 9999
 connINTime = []   #connections seconds log in LIST for DOS Mitigation
@@ -74,44 +108,31 @@ socket = s.socket(s.AF_INET, s.SOCK_STREAM)
 socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
 socket.bind((ip,port))
 socket.listen()
+print("Firewall has been running")
 
-    
+data = """<html>
+<body><h3> 404 </h3></body>
+</html>"""
+
 while True:
     conn, ip = socket.accept()
-    #conn.send("Proxy server".encode())
-    span = datetime.datetime.now()  # IP login time
-    VPN(ip[0], span)  #Object constructed
-    Balancer(conn,ip).start()            
-
-    def ConnInlogTime(ip):    #this method for appending time+ip in a list and passing to DOSMitigation method
-        sec = str(time.time())
-        sec = sec.split(".")
-        connInSec = sec[0]+" "+ip
-        connINTime.append(connInSec)
-        DosMitigation(connINTime)
-
-    def DosMitigation(connINTime):    #this method gets time+ip list and do process
-        sec = connINTime
-        val = 0
-        if(len(sec) == 6):            #It's check if a request is comes more than enough within a second
-            for i in sec:
-                span = i.split(" ")
-                val = int(span[0]) - val 
-                #val = abs(val)
-            
-            if(val < 1):            #If a rquest is malicious it will append the IPs in a IPCHECK list
-                IPCHECK = []
-                for i in sec:
-                    ip = i.split(" ")
-                    ip = ip[1]
-                    IPCHECK.append(ip)
-                    
-                if len(set(IPCHECK)) == 1:  #If the request is from same IPs it will write the IP in a BlockIP file
-                    with open("BlockIP.txt","a") as file:
-                        f = file.write(IPCHECK[0]+"\n")     
-                connINTime.clear()                          #Clear the list for every given list size is exceeds
-            else:
-                connINTime.clear()
-
-    ConnInlogTime(ip[0])   
+    def blockIP():                              #Block IPs that is listed in BlockIP list
+        flag = 1
+        with open('BlockIP.txt','r') as file:
+            f = 1
+            while(f):
+                f = file.readline().strip()
+                if(ip[0] == f):
+                    conn.sendall(resp_on.format(length=len(data),body=data).encode())
+                    print("Access denied for "+ip[0])
+                    conn.close()
+                    flag=0
+                    break
+        if(flag == 1):
+            print("Access granted for "+ip[0])
+            span = datetime.datetime.now()  # IP login time
+            VPN(ip[0], span)  #Object constructed
+            Balancer(conn,ip).start()            
+            ConnInlogTime(ip[0])   
+    blockIP()
 
