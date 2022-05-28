@@ -56,8 +56,9 @@ class Balancer(Thread):
     def run(self):
         data = conn.recv(4098)
         req = data.decode()
-        #print(req)
-        resp = requests.get("http://127.0.0.1/")
+        req = re.findall("/[a-z].* ",req)
+        req = str(req[0]).strip(" ")
+        resp = requests.get("http://127.0.0.1/NGFW-legit-code/web{}.php".format(req))
         with open('buffer.html','w') as buffer:
             buf = buffer.write(resp.text) 
         with open('buffer.html','r') as buffer:
@@ -100,7 +101,7 @@ def DosMitigation(connINTime):    #this method gets time+ip list and do process
 
 
 
-ip = "127.0.0.1"
+ip = "0.0.0.0"
 port = 9999
 connINTime = []   #connections seconds log in LIST for DOS Mitigation
 
