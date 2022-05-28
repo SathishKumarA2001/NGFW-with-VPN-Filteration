@@ -10,6 +10,7 @@ Content-Type: text
 Accept-Ranges: bytes
 Content-Length: {length}
 Vary: Accept-Encoding
+Location: {location}
 
 {body}
 
@@ -57,13 +58,15 @@ class Balancer(Thread):
         data = conn.recv(4098)
         req = data.decode()
         req = re.findall("/[a-z].* ",req)
+        if len(req) == 0:
+            req.append("/index")
         req = str(req[0]).strip(" ")
         resp = requests.get("http://127.0.0.1/NGFW-legit-code/web{}.php".format(req))
         with open('buffer.html','w') as buffer:
             buf = buffer.write(resp.text) 
         with open('buffer.html','r') as buffer:
             buf = buffer.read()
-        conn.sendall(resp_on.format(type=mimetypes.guess_type(buf)[0],length=len(buf),body=buf).encode())
+        conn.sendall(resp_on.format(type=mimetypes.guess_type(buf)[0],length=len(buf),body=buf,location="/NGFW-legit-code/web/test.php").encode())
         conn.close()
 
 
