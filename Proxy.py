@@ -105,7 +105,7 @@ def DosMitigation(connINTime):    #this method gets time+ip list and do process
 
 
 ip = "0.0.0.0"
-port = 9999
+port = 8888
 connINTime = []   #connections seconds log in LIST for DOS Mitigation
 
 socket = s.socket(s.AF_INET, s.SOCK_STREAM)
@@ -127,7 +127,7 @@ while True:
             while(f):
                 f = file.readline().strip()
                 if(ip[0] == f):
-                    conn.sendall(resp_on.format(length=len(data),body=data).encode())
+                    conn.sendall(resp_on.format(length=len(data),body=data,location="nowhere").encode())
                     print("Access denied for "+ip[0])
                     conn.close()
                     flag=0
