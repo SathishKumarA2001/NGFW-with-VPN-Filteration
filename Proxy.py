@@ -87,7 +87,7 @@ def DosMitigation(connINTime):    #this method gets time+ip list and do process
             val = int(span[0]) - val 
             #val = abs(val)
         
-        if(val < 1):            #If a rquest is malicious it will append the IPs in a IPCHECK list
+        if(val < 30):            #If a rquest is malicious it will append the IPs in a IPCHECK list
             IPCHECK = []
             for i in sec:
                 ip = i.split(" ")
