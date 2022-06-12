@@ -57,6 +57,7 @@ class Balancer(Thread):
     def run(self):
         data = conn.recv(4098)
         req = data.decode()
+        print(req)
         req = re.findall("/[a-z].* ",req)
         if len(req) == 0:
             req.append("/index")
